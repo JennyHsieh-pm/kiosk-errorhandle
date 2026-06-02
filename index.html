@@ -1,311 +1,451 @@
-
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,sans-serif;background:var(--color-background-tertiary)}
-.wrapper{display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:10px}
-.step-indicator{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
-.si{font-size:10px;padding:3px 10px;border-radius:20px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-tertiary);background:var(--color-background-primary);cursor:pointer}
-.si.cur{background:#1F4E79;color:#fff;border-color:#1F4E79}
-.si.done{background:#E1F5EE;color:#0F6E56;border-color:#5DCAA5}
-.phone{width:340px;height:604px;background:#1a1f2c;border-radius:20px;overflow:hidden;position:relative;border:3px solid #2a2f3e;flex-shrink:0}
-.screen{position:absolute;inset:0;transition:opacity .3s}
-.screen.hidden{opacity:0;pointer-events:none}
+body{background:#0d0d0d;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:14px;font-family:system-ui,-apple-system,'Helvetica Neue',sans-serif}
+.wrap{width:390px}
+.cap{font-size:11px;color:#333;text-align:center;margin-bottom:8px}
+.frame{width:390px;height:693px;background:#1a1f24;border-radius:22px;border:1.5px solid #222;overflow:hidden;position:relative;box-shadow:0 12px 44px rgba(0,0,0,.88)}
+.page{position:absolute;inset:0;display:flex;flex-direction:column}
+.page.hide{display:none}
 
-.hbar{background:#1e2430;padding:8px 10px 7px;display:flex;gap:0;border-bottom:1px solid #2d3550}
-.hi{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;border-radius:5px;padding:2px}
-.hico{font-size:13px}
-.green{color:#4CAF50}
-.red2{color:#E24B4A}
-.hlbl{font-size:7px;text-align:center;line-height:1.2}
-.hlbl.green{color:#4CAF50}
-.hlbl.red2{color:#ff6b6b}
-.hdesc{font-size:6px;text-align:center;color:#666}
-.hdesc.red2{color:#ff5252}
-.pulse{animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* health bar */
+.hbar{background:#1e262e;border-bottom:1px solid #28323e;padding:7px 6px 5px;display:flex;flex-shrink:0}
+.hi{display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px 4px;border-radius:7px;flex:1;cursor:pointer;transition:background .12s}
+.hi.ok{cursor:default}
+.hi:not(.ok):hover{background:rgba(255,255,255,.06)}
+.hi-row{display:flex;align-items:center;gap:3px}
+.hd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.hl{font-size:9px;font-weight:600;color:#c8d5e0;line-height:1}
+.hs{font-size:8px;color:#4a5568;text-align:center;line-height:1.2}
 
-.selfcheck{position:absolute;top:8px;right:8px;background:#2d3550;border-radius:6px;padding:4px 8px;display:flex;align-items:center;gap:3px}
-.selfcheck i{font-size:9px;color:#aaa}
-.selfcheck span{font-size:8px;color:#aaa}
+/* main dark page */
+.main-body{flex:1;padding:10px;position:relative;overflow:hidden}
+.scbtn{position:absolute;top:8px;right:8px;background:#1e2730;border:1px solid #2a3848;color:#8fa0b0;font-size:9.5px;border-radius:7px;padding:5px 8px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:32px}
+.mc{background:#1c2530;border:1px solid #243040;border-radius:10px;aspect-ratio:1.1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;transition:background .12s}
+.mc:hover{background:#213040}
+.mi{font-size:22px}
+.mn{font-size:10px;color:#6a808e}
+.hint{position:absolute;bottom:24px;left:0;right:0;font-size:10px;color:#a83230;text-align:center;animation:bl 1.6s ease-in-out infinite}
+@keyframes bl{0%,100%{opacity:.3}55%{opacity:1}}
+.staff-lbl{position:absolute;bottom:6px;right:10px;font-size:10px;color:#1e2830}
 
-.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px;margin-top:16px}
-.mbutton{background:#2d3550;border-radius:10px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}
-.mbutton i{font-size:22px;color:#8899aa}
-.mbutton span{font-size:8px;color:#8899aa;text-align:center;line-height:1.3}
+/* settings pages — light */
+.sp{background:#f0f0f0}
+.sph{background:#E8900A;padding:11px 13px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sp-back{width:29px;height:29px;border-radius:50%;background:rgba(0,0,0,.2);border:none;cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sp-ttl{font-size:18px;font-weight:700;color:#fff;flex:1;text-align:center}
+.sp-rbtn{background:rgba(255,255,255,.22);border:none;cursor:pointer;color:#fff;font-size:11px;font-weight:500;padding:6px 10px;border-radius:7px;flex-shrink:0}
+.spb{flex:1;overflow-y:auto;background:#fff}
+.spp{padding:10px 18px;background:#f0f0f0;display:flex;gap:10px;justify-content:center;flex-shrink:0;border-top:1px solid #e0e0e0}
+.sp-pb{background:#7B5EA7;border:none;color:#fff;font-size:13px;font-weight:700;padding:11px 34px;border-radius:9px;cursor:pointer}
+.sp-sb{background:#999;border:none;color:#fff;font-size:13px;font-weight:700;padding:11px 34px;border-radius:9px;cursor:pointer}
 
-.xbtn{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;border:2px solid #555;display:flex;align-items:center;justify-content:center}
-.xbtn i{font-size:13px;color:#555}
-.staff-lbl{position:absolute;bottom:14px;right:12px;font-size:9px;color:#444}
+/* printer content */
+.pdiv{height:1px;background:#ebebeb;margin:0 14px}
+.prow{padding:12px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.p-inuse{font-size:12px;font-weight:700;color:#e74c3c;line-height:1.9;flex-shrink:0}
+.p-info{font-size:12px;color:#444;line-height:1.9}
+.p-test{background:#7B5EA7;border:none;color:#fff;font-size:12px;font-weight:600;padding:8px 11px;border-radius:7px;cursor:pointer;flex-shrink:0}
+.p-dens{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #ebebeb}
+.p-dlbl{font-size:13px;color:#444}
+.p-dval{background:#7B5EA7;color:#fff;font-size:14px;font-weight:700;width:40px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center}
 
-.tap-hint{position:absolute;top:38px;left:0;width:68px;height:50px;border-radius:6px;border:2px solid #fff;animation:tapblink 1s infinite}
-@keyframes tapblink{0%,100%{border-color:rgba(255,255,255,0.8)}50%{border-color:rgba(255,255,255,0.1)}}
-.tap-label{position:absolute;top:92px;left:4px;font-size:8px;color:#fff;background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:4px;white-space:nowrap}
-.tap-arrow{position:absolute;top:82px;left:28px;font-size:14px;color:#fff}
+/* coin content */
+.ctb{padding:7px 10px;display:flex;align-items:center;gap:5px;background:#f5f5f5;border-bottom:1px solid #e0e0e0;flex-shrink:0}
+.ctb-all{background:#888;border:none;color:#fff;font-size:10px;padding:4px 9px;border-radius:5px;cursor:pointer}
+.ctb-r{margin-left:auto;display:flex;flex-direction:column;gap:3px}
+.ctb-pre{background:#999;border:none;color:#fff;font-size:9.5px;padding:3px 7px;border-radius:5px;cursor:pointer}
+.ct{width:100%;border-collapse:collapse;font-size:12px}
+.ct th{padding:6px 4px;text-align:center;font-weight:700;color:#666;border-bottom:2px solid #ddd;background:#f8f8f8;font-size:11px}
+.ct td{padding:5px 4px;text-align:center;color:#555;border-bottom:1px solid #eee}
+.ct td:first-child{font-weight:700;color:#333}
+.cb{width:20px;height:20px;border:2px solid #26a69a;border-radius:3px;display:inline-flex;align-items:center;justify-content:center}
+.ck{color:#26a69a;font-size:13px;font-weight:700;line-height:1}
+.csm{background:#7B5EA7;padding:8px 14px;flex-shrink:0}
+.csr{display:flex;align-items:center;padding:3px 0}
+.csl{font-size:11px;color:#ddd4f5}
+.csv{font-size:11px;color:#fff;font-weight:600;margin-left:auto;margin-right:8px}
+.csrb{background:#666;border:none;color:#fff;font-size:10px;padding:2px 7px;border-radius:4px;cursor:pointer}
 
-.overlay{position:absolute;inset:0;background:rgba(0,0,0,0.52)}
-.dialog-container{position:absolute;bottom:0;left:0;right:0;padding:8px}
-.dialog{background:#fff;border-radius:10px;overflow:hidden}
-.dh{padding:9px 12px 8px;border-bottom:0.5px solid #eee}
-.dtitle{font-size:12px;font-weight:600;color:#111}
-.dsub{font-size:9px;color:#888;margin-top:1px;font-family:monospace}
+/* overlays */
+.ovl{position:absolute;inset:0;background:rgba(0,0,0,.74);display:flex;flex-direction:column;justify-content:flex-end;z-index:40}
+.ovl.hide{display:none}
+.dlg{background:#252e38;border-radius:14px 14px 0 0;display:flex;flex-direction:column;max-height:88%}
+.dlg-h{padding:12px 12px 8px;border-bottom:1px solid #2a3545;flex-shrink:0;position:relative}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:14px;margin-bottom:4px}
+.br{background:rgba(165,28,28,.32);color:#e06060}
+.bo{background:rgba(190,120,0,.32);color:#e8a020}
+.bg{background:rgba(25,140,70,.32);color:#40c070}
+.dlg-t{font-size:13px;font-weight:700;color:#eee;line-height:1.3}
+.dlg-s{font-size:10px;color:#50606e;margin-top:2px}
+.dlg-x{position:absolute;top:10px;right:10px;width:23px;height:23px;border-radius:50%;background:#2a3540;border:none;cursor:pointer;color:#6a8090;font-size:10px;display:flex;align-items:center;justify-content:center}
 
-.netdiag{display:flex;align-items:center;justify-content:center;gap:0;padding:10px 14px;background:#f7f8fa;border-bottom:0.5px solid #eee}
-.nd-node{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:44px}
-.nd-icon{font-size:20px}
-.nd-lbl{font-size:7.5px;color:#888;text-align:center}
-.nd-line{display:flex;align-items:center;gap:2px;padding:0 4px}
-.nd-seg{width:16px;height:2px}
-.nd-seg.ok{background:#4CAF50}.nd-seg.err{background:#E24B4A}.nd-seg.def{background:#ddd}
-.nd-dot{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.nd-dot.ok{background:#4CAF50}.nd-dot.err{background:#E24B4A}.nd-dot.def{background:#ddd}
-.nd-dot i{font-size:8px;color:#fff}
-.status-text{font-size:11px;font-weight:500;padding:6px 14px 2px;color:#222}
+/* step indicator */
+.si{padding:7px 12px 2px;display:flex;align-items:center;gap:3px;flex-shrink:0}
+.sd{width:5px;height:5px;border-radius:50%;background:#2a3545;transition:all .15s}
+.sd.c{background:#1878c8;width:14px;border-radius:3px}
+.sd.d{background:#27ae60}
+.sn{font-size:10px;color:#506070;margin-left:auto}
 
-.step-dots{display:flex;gap:3px;padding:6px 12px 0;align-items:center}
-.sdot{width:5px;height:5px;border-radius:50%;background:#ddd}
-.sdot.a{background:#1F4E79;width:14px;border-radius:3px}
-.sdot.d{background:#aaa}
-.slbl{font-size:8.5px;color:#999;margin-left:auto}
+.dlg-body{flex:1;overflow-y:auto;padding:9px 12px;scrollbar-width:thin;scrollbar-color:#2a3540 transparent}
+.dlg-ft{padding:9px 12px;border-top:1px solid #2a3545;flex-shrink:0;display:flex;flex-direction:column;gap:5px}
+.cr{display:flex;gap:5px}
+.btn{flex:1;padding:9px 5px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;transition:opacity .1s,transform .1s}
+.btn:active{transform:scale(.97);opacity:.7}
+.btn:disabled{opacity:.25;cursor:default}
+.bnav{background:#1f2e3c;color:#7a9aaa;border:1px solid #2c3e50}
+.bleave{background:#1f2e3c;color:#7a9aaa;border:1px solid #2c3e50;font-size:10px}
+.bact{background:#1658a8;color:#d8ebff}
+.bok{background:#164a22;color:#78c888}
 
-.step-body{padding:5px 12px 2px}
-.step-num{font-size:9px;font-weight:600;color:#555;margin-bottom:2px}
-.step-txt{font-size:10px;color:#222;line-height:1.5}
-.img-area{margin:5px 12px;border-radius:6px;border:1px dashed #ddd;background:#f7f7f7;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
-.img-area i{font-size:16px;color:#ccc}
-.img-area span{font-size:8px;color:#bbb}
+/* step card */
+.sc{background:#1a242e;border-radius:9px;padding:11px 12px;border-left:3px solid #1878c8}
+.sc-lbl{font-size:9px;color:#506070;font-weight:700;margin-bottom:3px;letter-spacing:.4px}
+.sc-t{font-size:12px;color:#d0dae5;line-height:1.65}
+.sc-tip{font-size:11px;color:#607080;margin-top:5px;font-style:italic;line-height:1.4}
+.door{background:#163a1e;border:1px solid rgba(40,140,60,.4);color:#70c080;font-size:11px;font-weight:600;padding:8px;border-radius:6px;cursor:pointer;width:100%;margin-top:8px;text-align:center}
+.door.done{background:#1a2e1a;color:#40a050;cursor:default}
 
-.success-box{margin:8px 12px;background:#EAF3DE;border-radius:7px;padding:8px 10px;display:flex;align-items:center;gap:7px}
-.success-box i{font-size:16px;color:#3B6D11}
-.success-box div{font-size:10px;color:#27500A;line-height:1.4;font-weight:500}
+/* net diagram */
+.nd{background:#1a242e;border-radius:9px;padding:11px 8px;display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:9px}
+.ndc{display:flex;flex-direction:column;align-items:center;gap:2px}
+.ndico{font-size:23px;line-height:1}
+.ndlbl{font-size:9px;color:#607080}
+.ndline{flex:1;height:2px;background:#253040;display:flex;align-items:center;justify-content:center}
+.nnode{width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700}
+.nok{background:#1a5828;color:#70c880}
+.nfail{background:#6a1010;color:#e08080}
 
-.divl{height:0.5px;background:#eee;margin:6px 12px 0}
-.nav-row{display:flex;gap:6px;padding:6px 12px 0}
-.btn{flex:1;padding:6px;border-radius:6px;border:0.5px solid #ddd;font-size:9px;font-weight:500;text-align:center;cursor:pointer;background:#fff;color:#333}
-.btn.dis{color:#ccc;border-color:#eee;pointer-events:none}
-.btn.pri{background:#1F4E79;color:#fff;border-color:#1F4E79}
-.btn.suc{background:#3B6D11;color:#fff;border-color:#3B6D11}
-.act-row{display:flex;gap:6px;padding:5px 12px 10px}
-.btn-leave{padding:6px 12px;border-radius:6px;border:0.5px solid #ddd;font-size:9px;color:#888;cursor:pointer;background:#fff}
-.btn-action{flex:1;padding:6px;border-radius:6px;background:#f5f5f5;border:0.5px solid #ddd;font-size:9px;font-weight:500;color:#333;cursor:pointer}
+/* recovery */
+.rctr{text-align:center;padding:8px 0}
+.rico{font-size:36px;margin-bottom:6px}
+.rtl{font-size:14px;font-weight:700;color:#27ae60;margin-bottom:4px}
+.rsc{font-size:11px;color:#607080;line-height:1.5}
 </style>
+</head>
+<body>
+<div class="wrap">
+<div class="cap">維護模式排錯 Prototype · MP 機型 Phase 1</div>
+<div class="frame">
 
-<div class="wrapper">
-  <div class="step-indicator" id="si"></div>
-  <div class="phone" id="phone">
-
-    <div class="screen" id="s0">
-      <div class="hbar">
-        <div class="hi pulse" id="netIcon" onclick="go(1)">
-          <i class="ti ti-wifi-off hico red2" aria-hidden="true"></i>
-          <span class="hlbl red2">網路連線</span>
-          <span class="hdesc red2">斷線</span>
-        </div>
-        <div class="hi"><i class="ti ti-printer hico green" aria-hidden="true"></i><span class="hlbl green">印表機</span><span class="hdesc">紙量充足</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">入鈔模組</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">出鈔模組</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-coin hico green" aria-hidden="true"></i><span class="hlbl green">硬幣模組</span><span class="hdesc">待機中</span></div>
-      </div>
-      <div class="selfcheck"><i class="ti ti-refresh" aria-hidden="true"></i><span>模組自檢</span></div>
-      <div class="menu-grid">
-        <div class="mbutton"><i class="ti ti-users" aria-hidden="true"></i><span>員工專區</span></div>
-        <div class="mbutton"><i class="ti ti-book" aria-hidden="true"></i><span>Cash<br>Adjustment</span></div>
-        <div class="mbutton"><i class="ti ti-bell" aria-hidden="true"></i><span>Notify</span></div>
-        <div class="mbutton"><i class="ti ti-tool" aria-hidden="true"></i><span>Maintenance<br>Mode</span></div>
-      </div>
-      <div class="xbtn"><i class="ti ti-x" aria-hidden="true"></i></div>
-      <div class="staff-lbl">staff</div>
-      <div class="tap-hint"></div>
-      <div class="tap-arrow"><i class="ti ti-arrow-up" aria-hidden="true"></i></div>
-      <div class="tap-label">點擊查看診斷</div>
+<!-- ═══ PAGE: 維護模式主畫面 ═══ -->
+<div class="page" id="p-main">
+  <div class="hbar">
+    <div class="hi" onclick="goNet()">
+      <div class="hi-row"><div class="hd" id="d-net" style="background:#c8900a"></div><span class="hl">網路連線</span></div>
+      <span class="hs" id="s-net">外網斷線</span>
     </div>
-
-    <div class="screen hidden" id="s1">
-      <div class="hbar">
-        <div class="hi"><i class="ti ti-wifi-off hico red2" aria-hidden="true"></i><span class="hlbl red2">網路連線</span><span class="hdesc red2">斷線</span></div>
-        <div class="hi"><i class="ti ti-printer hico green" aria-hidden="true"></i><span class="hlbl green">印表機</span><span class="hdesc">紙量充足</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">入鈔模組</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">出鈔模組</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-coin hico green" aria-hidden="true"></i><span class="hlbl green">硬幣模組</span><span class="hdesc">待機中</span></div>
-      </div>
-      <div class="overlay"></div>
-      <div class="dialog-container">
-        <div class="dialog">
-          <div class="dh"><div class="dtitle">無法連接至路由器</div><div class="dsub">lan_error · 紅燈</div></div>
-          <div class="netdiag">
-            <div class="nd-node"><i class="ti ti-device-laptop nd-icon" style="color:#555" aria-hidden="true"></i><span class="nd-lbl">Kiosk</span></div>
-            <div class="nd-line"><div class="nd-seg err"></div><div class="nd-dot err"><i class="ti ti-x" aria-hidden="true"></i></div><div class="nd-seg err"></div></div>
-            <div class="nd-node"><i class="ti ti-router nd-icon" style="color:#aaa" aria-hidden="true"></i><span class="nd-lbl">路由器</span></div>
-            <div class="nd-line"><div class="nd-seg def"></div><div class="nd-dot def"></div><div class="nd-seg def"></div></div>
-            <div class="nd-node"><i class="ti ti-world nd-icon" style="color:#aaa" aria-hidden="true"></i><span class="nd-lbl">伺服器</span></div>
-          </div>
-          <div class="status-text" style="color:#E24B4A">無法連接至路由器</div>
-          <div class="step-dots"><div class="sdot a"></div><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div><span class="slbl">1 / 4</span></div>
-          <div class="step-body"><div class="step-num">步驟 1</div><div class="step-txt">確認路由器電源燈是否正常亮起</div></div>
-          <div class="divl"></div>
-          <div class="nav-row"><div class="btn dis">◀ 上一步</div><div class="btn pri" onclick="go(2)">下一步 ▶</div></div>
-          <div class="act-row"><div class="btn-leave" onclick="go(0)">離開</div></div>
-        </div>
-      </div>
+    <div class="hi" onclick="goPrt()">
+      <div class="hi-row"><div class="hd" id="d-prt" style="background:#b83028"></div><span class="hl">印表機</span></div>
+      <span class="hs" id="s-prt">卡紙異常</span>
     </div>
-
-    <div class="screen hidden" id="s2">
-      <div class="hbar">
-        <div class="hi"><i class="ti ti-wifi-off hico red2" aria-hidden="true"></i><span class="hlbl red2">網路連線</span><span class="hdesc red2">斷線</span></div>
-        <div class="hi"><i class="ti ti-printer hico green" aria-hidden="true"></i><span class="hlbl green">印表機</span><span class="hdesc">紙量充足</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">入鈔</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">出鈔</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-coin hico green" aria-hidden="true"></i><span class="hlbl green">硬幣</span><span class="hdesc">待機中</span></div>
-      </div>
-      <div class="overlay"></div>
-      <div class="dialog-container">
-        <div class="dialog">
-          <div class="dh"><div class="dtitle">無法連接至路由器</div><div class="dsub">lan_error · 紅燈</div></div>
-          <div class="netdiag">
-            <div class="nd-node"><i class="ti ti-device-laptop nd-icon" style="color:#555" aria-hidden="true"></i><span class="nd-lbl">Kiosk</span></div>
-            <div class="nd-line"><div class="nd-seg err"></div><div class="nd-dot err"><i class="ti ti-x" aria-hidden="true"></i></div><div class="nd-seg err"></div></div>
-            <div class="nd-node"><i class="ti ti-router nd-icon" style="color:#aaa" aria-hidden="true"></i><span class="nd-lbl">路由器</span></div>
-            <div class="nd-line"><div class="nd-seg def"></div><div class="nd-dot def"></div><div class="nd-seg def"></div></div>
-            <div class="nd-node"><i class="ti ti-world nd-icon" style="color:#aaa" aria-hidden="true"></i><span class="nd-lbl">伺服器</span></div>
-          </div>
-          <div class="img-area"><i class="ti ti-photo" aria-hidden="true"></i><span>步驟圖片</span></div>
-          <div class="step-dots"><div class="sdot d"></div><div class="sdot a"></div><div class="sdot"></div><div class="sdot"></div><span class="slbl">2 / 4</span></div>
-          <div class="step-body"><div class="step-num">步驟 2</div><div class="step-txt">確認網路線兩端已插緊（Kiosk 端與路由器端）</div></div>
-          <div class="divl"></div>
-          <div class="nav-row"><div class="btn" onclick="go(1)">◀ 上一步</div><div class="btn pri" onclick="go(3)">下一步 ▶</div></div>
-          <div class="act-row"><div class="btn-leave" onclick="go(0)">離開</div></div>
-        </div>
-      </div>
+    <div class="hi ok">
+      <div class="hi-row"><div class="hd" style="background:#27a060"></div><span class="hl">入鈔模組</span></div>
+      <span class="hs">待機中</span>
     </div>
-
-    <div class="screen hidden" id="s3">
-      <div class="hbar">
-        <div class="hi"><i class="ti ti-wifi-off hico red2" aria-hidden="true"></i><span class="hlbl red2">網路連線</span><span class="hdesc red2">斷線</span></div>
-        <div class="hi"><i class="ti ti-printer hico green" aria-hidden="true"></i><span class="hlbl green">印表機</span><span class="hdesc">紙量充足</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">入鈔</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">出鈔</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-coin hico green" aria-hidden="true"></i><span class="hlbl green">硬幣</span><span class="hdesc">待機中</span></div>
-      </div>
-      <div class="overlay"></div>
-      <div class="dialog-container">
-        <div class="dialog">
-          <div class="dh"><div class="dtitle">無法連接至路由器</div><div class="dsub">lan_error · 紅燈</div></div>
-          <div class="netdiag">
-            <div class="nd-node"><i class="ti ti-device-laptop nd-icon" style="color:#555" aria-hidden="true"></i><span class="nd-lbl">Kiosk</span></div>
-            <div class="nd-line"><div class="nd-seg err"></div><div class="nd-dot err"><i class="ti ti-x" aria-hidden="true"></i></div><div class="nd-seg err"></div></div>
-            <div class="nd-node"><i class="ti ti-router nd-icon" style="color:#aaa" aria-hidden="true"></i><span class="nd-lbl">路由器</span></div>
-            <div class="nd-line"><div class="nd-seg def"></div><div class="nd-dot def"></div><div class="nd-seg def"></div></div>
-            <div class="nd-node"><i class="ti ti-world nd-icon" style="color:#aaa" aria-hidden="true"></i><span class="nd-lbl">伺服器</span></div>
-          </div>
-          <div class="img-area"><i class="ti ti-photo" aria-hidden="true"></i><span>步驟圖片</span></div>
-          <div class="step-dots"><div class="sdot d"></div><div class="sdot d"></div><div class="sdot a"></div><div class="sdot"></div><span class="slbl">3 / 4</span></div>
-          <div class="step-body"><div class="step-num">步驟 3</div><div class="step-txt">重新開機 Kiosk，等待啟動完成</div></div>
-          <div class="divl"></div>
-          <div class="nav-row"><div class="btn" onclick="go(2)">◀ 上一步</div><div class="btn pri" onclick="go(4)">下一步 ▶</div></div>
-          <div class="act-row"><div class="btn-leave" onclick="go(0)">離開</div></div>
-        </div>
-      </div>
+    <div class="hi ok">
+      <div class="hi-row"><div class="hd" style="background:#27a060"></div><span class="hl">出鈔模組</span></div>
+      <span class="hs">待機中</span>
     </div>
-
-    <div class="screen hidden" id="s4">
-      <div class="hbar">
-        <div class="hi"><i class="ti ti-wifi-off hico red2" aria-hidden="true"></i><span class="hlbl red2">網路連線</span><span class="hdesc red2">斷線</span></div>
-        <div class="hi"><i class="ti ti-printer hico green" aria-hidden="true"></i><span class="hlbl green">印表機</span><span class="hdesc">紙量充足</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">入鈔</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">出鈔</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-coin hico green" aria-hidden="true"></i><span class="hlbl green">硬幣</span><span class="hdesc">待機中</span></div>
-      </div>
-      <div class="overlay"></div>
-      <div class="dialog-container">
-        <div class="dialog">
-          <div class="dh"><div class="dtitle">無法連接至路由器</div><div class="dsub">lan_error · 紅燈</div></div>
-          <div class="netdiag">
-            <div class="nd-node"><i class="ti ti-device-laptop nd-icon" style="color:#555" aria-hidden="true"></i><span class="nd-lbl">Kiosk</span></div>
-            <div class="nd-line"><div class="nd-seg err"></div><div class="nd-dot err"><i class="ti ti-x" aria-hidden="true"></i></div><div class="nd-seg err"></div></div>
-            <div class="nd-node"><i class="ti ti-router nd-icon" style="color:#aaa" aria-hidden="true"></i><span class="nd-lbl">路由器</span></div>
-            <div class="nd-line"><div class="nd-seg def"></div><div class="nd-dot def"></div><div class="nd-seg def"></div></div>
-            <div class="nd-node"><i class="ti ti-world nd-icon" style="color:#aaa" aria-hidden="true"></i><span class="nd-lbl">伺服器</span></div>
-          </div>
-          <div class="img-area"><i class="ti ti-photo" aria-hidden="true"></i><span>步驟圖片</span></div>
-          <div class="step-dots"><div class="sdot d"></div><div class="sdot d"></div><div class="sdot d"></div><div class="sdot a"></div><span class="slbl">4 / 4</span></div>
-          <div class="step-body"><div class="step-num">步驟 4（最後一步）</div><div class="step-txt">開機後嘗試連接路由器 WiFi，確認路由器是否正常</div></div>
-          <div class="success-box"><i class="ti ti-check-circle" aria-hidden="true"></i><div>完成後診斷將自動更新<br>若仍異常，請聯繫客服</div></div>
-          <div class="divl"></div>
-          <div class="nav-row"><div class="btn" onclick="go(3)">◀ 上一步</div><div class="btn dis">下一步 ▶</div></div>
-          <div class="act-row"><div class="btn-leave" onclick="go(0)">離開</div><div class="btn-action suc" onclick="go(5)" style="background:#1D9E75;color:#fff;border-color:#1D9E75">重新診斷</div></div>
-        </div>
-      </div>
+    <div class="hi" onclick="goCoin()">
+      <div class="hi-row"><div class="hd" id="d-coin" style="background:#b83028"></div><span class="hl">硬幣模組</span></div>
+      <span class="hs" id="s-coin">卡幣異常</span>
     </div>
-
-    <div class="screen hidden" id="s5">
-      <div class="hbar">
-        <div class="hi"><i class="ti ti-wifi hico green" aria-hidden="true"></i><span class="hlbl green">網路連線</span><span class="hdesc" style="color:#4CAF50">已連線</span></div>
-        <div class="hi"><i class="ti ti-printer hico green" aria-hidden="true"></i><span class="hlbl green">印表機</span><span class="hdesc">紙量充足</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">入鈔</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">出鈔</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-coin hico green" aria-hidden="true"></i><span class="hlbl green">硬幣</span><span class="hdesc">待機中</span></div>
-      </div>
-      <div class="overlay"></div>
-      <div class="dialog-container">
-        <div class="dialog">
-          <div class="dh"><div class="dtitle" style="color:#1D9E75">網路連線已恢復</div><div class="dsub">診斷完成 · 狀態正常</div></div>
-          <div class="netdiag">
-            <div class="nd-node"><i class="ti ti-device-laptop nd-icon" style="color:#555" aria-hidden="true"></i><span class="nd-lbl">Kiosk</span></div>
-            <div class="nd-line"><div class="nd-seg ok"></div><div class="nd-dot ok"><i class="ti ti-check" aria-hidden="true"></i></div><div class="nd-seg ok"></div></div>
-            <div class="nd-node"><i class="ti ti-router nd-icon" style="color:#555" aria-hidden="true"></i><span class="nd-lbl">路由器</span></div>
-            <div class="nd-line"><div class="nd-seg ok"></div><div class="nd-dot ok"><i class="ti ti-check" aria-hidden="true"></i></div><div class="nd-seg ok"></div></div>
-            <div class="nd-node"><i class="ti ti-world nd-icon" style="color:#1D9E75" aria-hidden="true"></i><span class="nd-lbl" style="color:#1D9E75">伺服器</span></div>
-          </div>
-          <div class="status-text" style="color:#1D9E75">已連線至伺服器</div>
-          <div style="padding:8px 12px 12px">
-            <div class="success-box"><i class="ti ti-circle-check" aria-hidden="true"></i><div>排錯成功！機台已可正常運作<br>點擊「返回」回到維護模式</div></div>
-          </div>
-          <div class="divl"></div>
-          <div class="act-row"><div class="btn-action suc" onclick="go(6)" style="background:#1F4E79;color:#fff;border-color:#1F4E79;text-align:center;flex:1;padding:8px">返回維護模式</div></div>
-        </div>
-      </div>
+  </div>
+  <div class="main-body">
+    <div class="scbtn">⟳ 模組自檢</div>
+    <div class="mgrid">
+      <div class="mc" onclick="goPrt()"><div class="mi">🖨</div><span class="mn">印表機設定</span></div>
+      <div class="mc"><div class="mi">📋</div><span class="mn">菜單設定</span></div>
+      <div class="mc"><div class="mi">⚙️</div><span class="mn">裝置設定</span></div>
+      <div class="mc" onclick="goCoin()"><div class="mi">🪙</div><span class="mn">補充硬幣</span></div>
     </div>
-
-    <div class="screen hidden" id="s6">
-      <div class="hbar">
-        <div class="hi"><i class="ti ti-wifi hico green" aria-hidden="true"></i><span class="hlbl green">網路連線</span><span class="hdesc" style="color:#4CAF50">已連線至伺服器</span></div>
-        <div class="hi"><i class="ti ti-printer hico green" aria-hidden="true"></i><span class="hlbl green">印表機</span><span class="hdesc">紙量充足</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">入鈔</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-cash hico green" aria-hidden="true"></i><span class="hlbl green">出鈔</span><span class="hdesc">待機中</span></div>
-        <div class="hi"><i class="ti ti-coin hico green" aria-hidden="true"></i><span class="hlbl green">硬幣</span><span class="hdesc">待機中</span></div>
-      </div>
-      <div class="selfcheck"><i class="ti ti-refresh" aria-hidden="true"></i><span>模組自檢</span></div>
-      <div class="menu-grid">
-        <div class="mbutton"><i class="ti ti-users" aria-hidden="true"></i><span>員工專區</span></div>
-        <div class="mbutton"><i class="ti ti-book" aria-hidden="true"></i><span>Cash<br>Adjustment</span></div>
-        <div class="mbutton"><i class="ti ti-bell" aria-hidden="true"></i><span>Notify</span></div>
-        <div class="mbutton"><i class="ti ti-tool" aria-hidden="true"></i><span>Maintenance<br>Mode</span></div>
-      </div>
-      <div class="xbtn"><i class="ti ti-x" aria-hidden="true"></i></div>
-      <div class="staff-lbl">staff</div>
-    </div>
-
+    <div class="hint" id="hint">↑ 點擊異常燈號 或 下方模組卡片 進入排錯</div>
+    <div class="staff-lbl">staff</div>
   </div>
 
-  <div style="display:flex;gap:8px;margin-top:4px">
-    <button onclick="prev()" style="font-size:11px;padding:5px 14px">◀ 上一步</button>
-    <button onclick="next()" style="font-size:11px;padding:5px 14px">下一步 ▶</button>
+  <!-- Network dialog on main page -->
+  <div class="ovl hide" id="o-net">
+    <div class="dlg">
+      <div class="dlg-h">
+        <div class="badge bo">🟠 橘燈 · 網路連線異常</div>
+        <div class="dlg-t">外網斷線（WAN error）</div>
+        <div class="dlg-s">內網通，但路由器無法連上外部網路</div>
+        <button class="dlg-x" onclick="H('o-net')">✕</button>
+      </div>
+      <div class="si" id="si-net"></div>
+      <div class="dlg-body">
+        <div class="nd">
+          <div class="ndc"><div class="ndico">🖥</div><div class="ndlbl">Kiosk</div></div>
+          <div class="ndline"><div class="nnode nok" style="font-size:6px">✓</div></div>
+          <div class="ndc"><div class="ndico">📡</div><div class="ndlbl">路由器</div></div>
+          <div class="ndline"><div class="nnode nfail">✕</div></div>
+          <div class="ndc"><div class="ndico" style="opacity:.3">🌐</div><div class="ndlbl" style="opacity:.3">外網</div></div>
+        </div>
+        <div id="sb-net"></div>
+      </div>
+      <div class="dlg-ft">
+        <div class="cr">
+          <button class="btn bnav" id="pv-net" onclick="P('net')">◀ 上一步</button>
+          <button class="btn bnav" id="nx-net" onclick="N('net')">下一步 ▶</button>
+        </div>
+        <div class="cr"><button class="btn bleave" onclick="H('o-net')">離開（返回維護模式）</button></div>
+      </div>
+    </div>
   </div>
 </div>
 
+<!-- ═══ PAGE: 印表機設定 ═══ -->
+<div class="page hide sp" id="p-prt">
+  <div class="sph">
+    <button class="sp-back" onclick="goMain()">←</button>
+    <span class="sp-ttl">印表機設定</span>
+    <button class="sp-rbtn">搜尋印表機</button>
+  </div>
+  <div class="spb">
+    <div style="height:10px"></div>
+    <div class="pdiv"></div>
+    <div class="prow">
+      <div style="display:flex;gap:8px;align-items:flex-start">
+        <span class="p-inuse">使用中</span>
+        <div class="p-info">
+          編號: 1<br>名稱: ADVANTECH<br>
+          <span id="prt-st" style="color:#b83028;font-weight:600">狀態: 卡紙</span>
+        </div>
+      </div>
+      <button class="p-test" onclick="S('o-prt')">測試列印</button>
+    </div>
+    <div class="pdiv"></div>
+    <div class="p-dens"><span class="p-dlbl">列印濃度</span><div class="p-dval">2</div></div>
+  </div>
+  <div class="spp">
+    <button class="sp-pb">儲存</button>
+    <button class="sp-sb" onclick="goMain()">退出</button>
+  </div>
+
+  <!-- Printer dialog (auto-pops on enter) -->
+  <div class="ovl hide" id="o-prt">
+    <div class="dlg">
+      <div class="dlg-h">
+        <div class="badge br">🔴 紅燈 · 印表機異常</div>
+        <div class="dlg-t">卡紙 / 裁刀異常</div>
+        <div class="dlg-s">PrinterStatus.PAPER_JAM</div>
+        <button class="dlg-x" onclick="H('o-prt')">✕</button>
+      </div>
+      <div class="si" id="si-prt"></div>
+      <div class="dlg-body"><div id="sb-prt"></div></div>
+      <div class="dlg-ft">
+        <div class="cr">
+          <button class="btn bnav" id="pv-prt" onclick="P('prt')">◀ 上一步</button>
+          <button class="btn bnav" id="nx-prt" onclick="N('prt')">下一步 ▶</button>
+        </div>
+        <div class="cr">
+          <button class="btn bleave" onclick="H('o-prt')">離開（返回模組設定頁）</button>
+          <button class="btn bact" onclick="doTP()">測試列印</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Test print result -->
+  <div class="ovl hide" id="o-prt-ok">
+    <div class="dlg">
+      <div class="dlg-h">
+        <div class="badge bg">✅ 測試列印成功</div>
+        <div class="dlg-t">印表機已恢復正常</div>
+      </div>
+      <div class="dlg-body" style="padding:16px 12px">
+        <div class="sc" style="border-left-color:#27ae60">
+          <div class="sc-t">🧾 測試列印完成，紙張正常送出，印表機運作正常。</div>
+        </div>
+      </div>
+      <div class="dlg-ft">
+        <div class="cr"><button class="btn bok" onclick="recPrt()">離開（返回模組設定頁）</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE: 補充硬幣 ═══ -->
+<div class="page hide sp" id="p-coin">
+  <div class="sph">
+    <button class="sp-back" onclick="goMain()">←</button>
+    <span class="sp-ttl">補充硬幣</span>
+    <div style="width:29px"></div>
+  </div>
+  <div class="spb">
+    <div class="ctb">
+      <button class="ctb-all">全選</button>
+      <button class="ctb-all">全選</button>
+      <div class="ctb-r">
+        <button class="ctb-pre">存為預設</button>
+        <button class="ctb-pre">回復預設</button>
+      </div>
+    </div>
+    <table class="ct">
+      <thead><tr><th>幣管</th><th>入幣</th><th>出幣</th><th>面額</th><th>數量</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><div class="cb"><span class="ck">✓</span></div></td><td><div class="cb"><span class="ck">✓</span></div></td><td>50</td><td>5</td></tr>
+        <tr><td>2</td><td><div class="cb"><span class="ck">✓</span></div></td><td><div class="cb"><span class="ck">✓</span></div></td><td>10</td><td>5</td></tr>
+        <tr><td>3</td><td><div class="cb"><span class="ck">✓</span></div></td><td><div class="cb"><span class="ck">✓</span></div></td><td>10</td><td>5</td></tr>
+        <tr><td>4</td><td><div class="cb"><span class="ck">✓</span></div></td><td><div class="cb"><span class="ck">✓</span></div></td><td>5</td><td>5</td></tr>
+        <tr><td>5</td><td><div class="cb"><span class="ck">✓</span></div></td><td><div class="cb"><span class="ck">✓</span></div></td><td>1</td><td>5</td></tr>
+        <tr><td>6</td><td><div class="cb"></div></td><td><div class="cb"><span class="ck">✓</span></div></td><td>50</td><td>5</td></tr>
+        <tr><td>7</td><td><div class="cb"></div></td><td><div class="cb"><span class="ck">✓</span></div></td><td>10</td><td>5</td></tr>
+        <tr><td>8</td><td><div class="cb"></div></td><td><div class="cb"><span class="ck">✓</span></div></td><td>10</td><td>5</td></tr>
+        <tr><td>9</td><td><div class="cb"></div></td><td><div class="cb"><span class="ck">✓</span></div></td><td>5</td><td>5</td></tr>
+        <tr><td>10</td><td><div class="cb"></div></td><td><div class="cb"><span class="ck">✓</span></div></td><td>1</td><td>5</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="csm">
+    <div class="csr"><span class="csl">硬幣總額：</span><span class="csv">$ 760</span></div>
+    <div class="csr"><span class="csl">溢幣區總額：</span><span class="csv">$ 0</span><button class="csrb">重置</button></div>
+    <div class="csr"><span class="csl">卡幣總額：</span><span class="csv">$ 0</span><button class="csrb">重置</button></div>
+  </div>
+  <div class="spp">
+    <button class="sp-pb">設定</button>
+    <button class="sp-sb" onclick="goMain()">退出</button>
+  </div>
+
+  <!-- Coins dialog (auto-pops on enter) -->
+  <div class="ovl hide" id="o-coin">
+    <div class="dlg">
+      <div class="dlg-h">
+        <div class="badge br">🔴 紅燈 · 硬幣模組異常</div>
+        <div class="dlg-t">前排幣道卡幣</div>
+        <div class="dlg-s">錯誤碼：12, 13</div>
+        <button class="dlg-x" onclick="H('o-coin')">✕</button>
+      </div>
+      <div class="si" id="si-coin"></div>
+      <div class="dlg-body"><div id="sb-coin"></div></div>
+      <div class="dlg-ft">
+        <div class="cr">
+          <button class="btn bnav" id="pv-coin" onclick="P('coin')">◀ 上一步</button>
+          <button class="btn bnav" id="nx-coin" onclick="N('coin')">下一步 ▶</button>
+        </div>
+        <div class="cr">
+          <button class="btn bleave" onclick="H('o-coin')">離開（返回模組設定頁）</button>
+          <button class="btn bact" onclick="doMC()">模組自檢</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Module check result -->
+  <div class="ovl hide" id="o-coin-ok">
+    <div class="dlg">
+      <div class="dlg-h">
+        <div class="badge bg">✅ 模組自檢完成</div>
+        <div class="dlg-t">硬幣模組已恢復正常</div>
+      </div>
+      <div class="dlg-body" style="padding:14px 12px">
+        <div class="rctr">
+          <div class="rico">✅</div>
+          <div class="rtl">自檢通過</div>
+          <div class="rsc">硬幣模組運作正常，卡幣已排除，可繼續使用。</div>
+        </div>
+      </div>
+      <div class="dlg-ft">
+        <div class="cr"><button class="btn bok" onclick="recCoin()">離開（返回模組設定頁）</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /frame -->
+<div style="margin-top:7px;font-size:10.5px;color:#282828;text-align:center">🟠 網路外網斷線 &nbsp;·&nbsp; 🔴 印表機卡紙（點模組進模組設定頁）&nbsp;·&nbsp; 🔴 硬幣模組卡幣</div>
+</div>
+
 <script>
-const labels=['維護模式（紅燈）','點擊健康狀態','步驟 1','步驟 2','步驟 3（最後）','排錯成功','恢復正常'];
-let cur=0;
-const total=7;
-function render(){
-  for(let i=0;i<total;i++){
-    const el=document.getElementById('s'+i);
-    if(el)el.classList.toggle('hidden',i!==cur);
-  }
-  const si=document.getElementById('si');
-  si.innerHTML=labels.map((l,i)=>`<div class="si ${i===cur?'cur':i<cur?'done':''}" onclick="go(${i})">${l}</div>`).join('');
+var STEPS={
+  net:[
+    {t:'確認路由器 WAN / 訊號燈是否正常亮起',tip:'WAN 燈熄滅或閃爍異常，表示外部網路可能中斷。'},
+    {t:'使用其他設備連接同一路由器，測試是否可正常上網',tip:'若其他設備也無法上網，問題在路由器或 ISP，並非 Kiosk 本身。'},
+    {t:'重新開機 Kiosk，等待 30–60 秒後觀察燈號是否恢復',tip:'完成開機後，觀察維護模式健康狀態是否自動恢復綠燈。'},
+    {t:'若仍異常，可能是電小二伺服器維護中，請稍後再確認',tip:'此情況通常為伺服器端問題，非機台問題。如需協助請聯繫客服，告知「伺服器連線異常」。'}
+  ],
+  prt:[
+    {t:'打開印表機蓋'},
+    {t:'使用乾布擦拭上方熱感區和裁刀'},
+    {t:'清潔門板下方縫隙和印表機內紙屑'},
+    {t:'重新安裝紙卷後關閉蓋板',tip:'確認紙卷方向正確：出紙面朝外（熱感面向外）。'},
+    {t:'執行測試列印確認正常',tip:'點擊下方「測試列印」按鈕，確認印表機是否恢復正常。'}
+  ],
+  coin:[
+    {t:'找到硬幣模組下方的綠色指引片',door:true,tip:'請先點擊「開啟安全門」，再繼續操作硬幣模組。'},
+    {t:'拉著指引片，將硬幣模組從機台中拉出'},
+    {t:'找到幣道，推按綠色撥桿並打開前幣道'},
+    {t:'拉開後可看到 3 層幣道，逐層檢查並排除卡幣',tip:'排除後將幣道蓋緊，再推回硬幣模組並確認安裝正確。'}
+  ]
+};
+var idx={net:0,prt:0,coin:0};
+var door=false;
+
+function R(k){
+  var ss=STEPS[k],i=idx[k],s=ss[i];
+  var si=document.getElementById('si-'+k);
+  var h='';
+  for(var j=0;j<ss.length;j++) h+='<div class="sd'+(j<i?' d':j===i?' c':'')+'"></div>';
+  h+='<span class="sn">'+(i+1)+' / '+ss.length+'</span>';
+  si.innerHTML=h;
+  var b=document.getElementById('sb-'+k);
+  var bh='<div class="sc"><div class="sc-lbl">步驟 '+(i+1)+' / '+ss.length+'</div><div class="sc-t">'+s.t+'</div>';
+  if(s.tip) bh+='<div class="sc-tip">💡 '+s.tip+'</div>';
+  if(s.door) bh+=door?'<div class="door done">✓ 安全門已開啟</div>':'<button class="door" onclick="openDoor()">🔓 開啟安全門</button>';
+  bh+='</div>';
+  b.innerHTML=bh;
+  var pv=document.getElementById('pv-'+k),nx=document.getElementById('nx-'+k);
+  pv.disabled=(i===0);
+  nx.disabled=(i===ss.length-1);
+  nx.textContent=i===ss.length-1?'完成 ✓':'下一步 ▶';
 }
-function go(n){cur=Math.max(0,Math.min(total-1,n));render();}
-function next(){go(cur+1);}
-function prev(){go(cur-1);}
-render();
+function P(k){if(idx[k]>0){idx[k]--;R(k);}}
+function N(k){if(idx[k]<STEPS[k].length-1){idx[k]++;R(k);}}
+function S(id){document.getElementById(id).classList.remove('hide');}
+function H(id){document.getElementById(id).classList.add('hide');}
+function openDoor(){door=true;R('coin');}
+
+function goMain(){
+  ['p-prt','p-coin'].forEach(function(p){document.getElementById(p).classList.add('hide');});
+  document.getElementById('p-main').classList.remove('hide');
+  ['o-net','o-prt','o-prt-ok','o-coin','o-coin-ok'].forEach(H);
+}
+function goNet(){
+  document.getElementById('hint').style.display='none';
+  idx.net=0; R('net'); S('o-net');
+}
+function goPrt(){
+  document.getElementById('hint').style.display='none';
+  document.getElementById('p-main').classList.add('hide');
+  document.getElementById('p-prt').classList.remove('hide');
+  idx.prt=0; R('prt');
+  setTimeout(function(){S('o-prt');},180);
+}
+function goCoin(){
+  document.getElementById('hint').style.display='none';
+  document.getElementById('p-main').classList.add('hide');
+  document.getElementById('p-coin').classList.remove('hide');
+  idx.coin=0; door=false; R('coin');
+  setTimeout(function(){S('o-coin');},180);
+}
+function doTP(){H('o-prt');S('o-prt-ok');}
+function recPrt(){
+  H('o-prt-ok');
+  document.getElementById('d-prt').style.background='#27a060';
+  document.getElementById('s-prt').textContent='紙量充足';
+  var el=document.getElementById('prt-st');
+  el.style.color='#27a060'; el.textContent='狀態: 紙量充足';
+}
+function doMC(){H('o-coin');S('o-coin-ok');}
+function recCoin(){
+  H('o-coin-ok');
+  document.getElementById('d-coin').style.background='#27a060';
+  document.getElementById('s-coin').textContent='待機中';
+}
+R('net'); R('prt'); R('coin');
 </script>
+</body>
+</html>
